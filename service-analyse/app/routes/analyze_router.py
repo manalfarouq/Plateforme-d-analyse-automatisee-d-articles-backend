@@ -23,6 +23,7 @@ def analyze_text_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(.
         # Extraire uniquement la catégorie avec le score le plus élevé
         if isinstance(resultat, list) and len(resultat) > 0:
             meilleure_categorie = resultat[0]  # Le premier élément a le score le plus élevé
+            meilleure_categorie["score"] = f"{meilleure_categorie['score'] * 100:.2f}%"
         else:
             meilleure_categorie = resultat
         
