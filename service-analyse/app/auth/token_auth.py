@@ -1,6 +1,6 @@
 from fastapi import Header, HTTPException, Depends
 from jose import jwt, JWTError
-from app.core.config import settings
+from ..core.config import settings
 
 def verify_token(token: str = Header(...)):
     """

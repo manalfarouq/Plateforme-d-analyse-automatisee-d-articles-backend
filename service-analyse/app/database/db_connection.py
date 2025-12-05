@@ -1,16 +1,10 @@
 import psycopg2
-from app.core.config import settings
-
-"""
-Qu'est-ce que ça fait ?
-
-=> Cette fonction crée une connexion entre Python et PostgreSQL
-=> C'est comme ouvrir une porte entre le code et la base de données
-=> Chaque fois que je veux lire/écrire dans la base, j'appelle cette fonction
-"""
+from ..core.config import settings
 
 def get_db_connection():
-
+    """
+    Crée et retourne une connexion à la base de données PostgreSQL.
+    """
     conn = psycopg2.connect(
         host=settings.DB_HOST,
         port=settings.DB_PORT,
