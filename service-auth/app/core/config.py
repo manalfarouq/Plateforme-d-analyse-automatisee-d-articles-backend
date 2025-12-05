@@ -1,4 +1,12 @@
 from pydantic_settings import BaseSettings
+from pathlib import Path
+
+# Obtenir le chemin absolu du dossier service-auth
+# __file__ = service-auth/app/core/config.py
+# .parent = service-auth/app/core
+# .parent = service-auth/app
+# .parent = service-auth
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 class Settings(BaseSettings):
     SK: str
@@ -11,11 +19,10 @@ class Settings(BaseSettings):
     DB_NAME: str 
     DB_USER: str 
     DB_PASSWORD: str 
-    
 
     model_config = {
         "extra": "ignore",
-        "env_file": ".env",
+        "env_file": str(BASE_DIR / ".env"),  
         "case_sensitive": True
     }
 
