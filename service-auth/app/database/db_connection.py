@@ -1,5 +1,5 @@
 import psycopg2
-from app.core.config import settings
+from ..core.config import settings
 
 """
 Qu'est-ce que ça fait ?
