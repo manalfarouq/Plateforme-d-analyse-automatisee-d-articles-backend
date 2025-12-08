@@ -8,22 +8,24 @@ from pathlib import Path
 # .parent = service-auth
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
+from pydantic_settings import BaseSettings
+
 class Settings(BaseSettings):
+    # Variables AUTH
     SK: str
     ALG: str = "HS256"
-    HF_TOKEN: str
     ACCESS_TOKEN_EXPIRE_MINUTES: int
-
-    DB_HOST: str 
-    DB_PORT: int 
-    DB_NAME: str 
-    DB_USER: str 
-    DB_PASSWORD: str 
-
-    model_config = {
-        "extra": "ignore",
-        "env_file": str(BASE_DIR / ".env"),  
-        "case_sensitive": True
-    }
+    DB_HOST: str
+    DB_PORT: int
+    DB_NAME: str
+    DB_USER: str
+    DB_PASSWORD: str
+    
+    # Variables optionnelles pour autres services
+    HF_TOKEN: str = "not_needed"
+    GEMINI_API_KEY: str = "not_needed"
+    
+    class Config:
+        env_file = ".env"
 
 settings = Settings()
