@@ -1,0 +1,78 @@
+name: Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-auth:
+    name: Test Service Auth
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+    
+    - name: Install dependencies
+      run: |
+        cd service-auth
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        cd service-auth
+        python -m pytest tests/ -v
+
+  test-gemini:
+    name: Test Service Gemini
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+    
+    - name: Install dependencies
+      run: |
+        cd service-gemini
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        cd service-gemini
+        python -m pytest tests/ -v
+      env:
+        GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+  test-analyse:
+    name: Test Service Analyse
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.14'
+    
+    - name: Install dependencies
+      run: |
+        cd service-analyse
+        pip install -r requirements.txt
+    
+    - name: Run tests
+      run: |
+        cd service-analyse
+        python -m pytest tests/ -v
+      env:
+        HF_TOKEN: ${{ secrets.HF_TOKEN }}

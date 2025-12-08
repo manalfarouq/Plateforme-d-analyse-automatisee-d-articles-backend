@@ -1,0 +1,28 @@
+name: Docker Build
+
+on:
+  push:
+    branches: [ main , develop ]
+
+jobs:
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Build service-auth
+      run: |
+        cd service-auth
+        docker build -t service-auth:latest .
+    
+    - name: Build service-gemini
+      run: |
+        cd service-gemini
+        docker build -t service-gemini:latest .
+    
+    - name: Build service-analyse
+      run: |
+        cd service-analyse
+        docker build -t service-analyse:latest .
