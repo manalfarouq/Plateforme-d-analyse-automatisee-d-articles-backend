@@ -1,4 +1,7 @@
 from pydantic_settings import BaseSettings
+from pathlib import Path   
+
+BASE_DIR = Path(__file__).resolve().parent.parent.parent   
 
 class Settings(BaseSettings):
     SK: str
@@ -12,10 +15,11 @@ class Settings(BaseSettings):
     DB_USER: str 
     DB_PASSWORD: str 
     
-
+    GEMINI_API_KEY: str
+    
     model_config = {
         "extra": "ignore",
-        "env_file": ".env",
+        "env_file": str(BASE_DIR / ".env"),  
         "case_sensitive": True
     }
 
