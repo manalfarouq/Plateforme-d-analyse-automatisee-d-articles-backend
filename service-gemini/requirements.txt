@@ -19,3 +19,4 @@ huggingface_hub
 pydantic_settings
 jwt
 google-generativeai
+google-genai
