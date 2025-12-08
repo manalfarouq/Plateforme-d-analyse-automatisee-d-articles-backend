@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from .routes import analyze_router
+from .routes import analyze_router, analyse_complet_router
 
 app = FastAPI(title="Service d'Analyse d'Articles")
 
@@ -10,3 +10,5 @@ async def root():
 
 
 app.include_router(analyze_router.router)  
+app.include_router(analyse_complet_router.router)
+
