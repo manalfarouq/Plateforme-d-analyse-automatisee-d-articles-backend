@@ -21,14 +21,14 @@ def test_login():
     """Test connexion"""
     # S'inscrire d'abord
     client.post("/Signup", json={
-        "username": "user1",
-        "email": "user1@mail.com",
+        "username": "manal",
+        "email": "manal@mail.com",
         "password": "pass123"
     })
     
     # Se connecter
     response = client.post("/Login", json={
-        "username": "user1",
+        "username": "manal",
         "password": "pass123"
     })
     assert response.status_code == 200
