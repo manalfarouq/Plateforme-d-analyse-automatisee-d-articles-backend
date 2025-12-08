@@ -1,44 +1,12 @@
-# Python
+.env
+.env.*
 __pycache__/
 *.py[cod]
-*$py.class
-*.so
-.Python
-
-# Environnements virtuels
-.venv
-venv/
-ENV/
-env/
-
-# IDEs
+.pytest_cache/
 .vscode/
 .idea/
-*.swp
-*.swo
-*~
-
-# Git
 .git/
-.gitignore
-
-# Historique
-.history/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Tests
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Documentation
 *.md
-README.md
-docs/
-
-# Logs
 *.log
-
+venv/
+.venv/
