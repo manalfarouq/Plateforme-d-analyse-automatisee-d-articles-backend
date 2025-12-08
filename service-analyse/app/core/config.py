@@ -1,10 +1,19 @@
 from pydantic_settings import BaseSettings
+from pydantic_settings import SettingsConfigDict
 from pathlib import Path   
 
-BASE_DIR = Path(__file__).resolve().parent.parent.parent   
+# BASE_DIR = Path(__file__).resolve().parent.parent.parent   
 
 class Settings(BaseSettings):
-    # Variable ANALYSE
+    """Configuration pour le service d'analyse"""
+    
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
+    
+    # Variable ANALYSE (obligatoire)
     HF_TOKEN: str
     
     # Variables optionnelles pour autres services
@@ -17,8 +26,5 @@ class Settings(BaseSettings):
     DB_USER: str = "not_needed"
     DB_PASSWORD: str = "not_needed"
     GEMINI_API_KEY: str = "not_needed"
-    
-    class Config:
-        env_file = ".env"
 
 settings = Settings()
