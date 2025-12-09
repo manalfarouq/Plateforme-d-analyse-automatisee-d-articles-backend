@@ -13,7 +13,7 @@ class Settings(BaseSettings):
     DB_NAME: str = "not_needed"
     DB_USER: str = "not_needed"
     DB_PASSWORD: str = "not_needed"
-    GEMINI_API_KEY: str
+    GEMINI_API_KEY: str = "not_needed"
     
     class Config:
         env_file = ".env"
