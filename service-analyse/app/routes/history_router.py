@@ -20,10 +20,9 @@ def get_user_history(token: str = Header(...)):
         cursor = conn.cursor()
         
         cursor.execute("""
-            SELECT id, texte_original, categorie, resume, ton, created_at
+            SELECT id, texte_original, categorie, resume, ton
             FROM analyse_logs
             WHERE user_id = %s
-            ORDER BY created_at DESC
             LIMIT 50
         """, (user_id,))
         
@@ -40,7 +39,6 @@ def get_user_history(token: str = Header(...)):
                 "categorie": row[2],
                 "resume": row[3],
                 "ton": row[4],
-                "created_at": row[5].isoformat() if row[5] else None
             })
         
         return {
