@@ -3,7 +3,7 @@
 import requests
 from .huggingface_service import classifier_articles
 
-GEMINI_SERVICE_URL = "http://localhost:8001/analyser_gemini"
+GEMINI_SERVICE_URL = "http://localhost:8002/analyser_gemini"  # PORT 8002 !
 
 
 def analyser_texte_complet(texte):
@@ -25,10 +25,14 @@ def analyser_texte_complet(texte):
             json={"texte": texte, "categorie": categorie},
             timeout=30
         )
+        
+        if response.status_code != 200:
+            return {"erreur": f"Service Gemini erreur {response.status_code}"}
+        
         resultat_gemini = response.json()
         
         if "erreur" in resultat_gemini:
-            return {"erreur": "Erreur Gemini"}
+            return {"erreur": resultat_gemini["erreur"]}
         
         return {
             "classification": {"categorie": categorie, "score": score},
@@ -36,5 +40,7 @@ def analyser_texte_complet(texte):
             "ton": resultat_gemini["ton"]
         }
     
-    except:
-        return {"erreur": "Service Gemini indisponible"}
+    except requests.exceptions.ConnectionError:
+        return {"erreur": "Service Gemini indisponible (vérifiez qu'il tourne sur le port 8002)"}
+    except Exception as e:
+        return {"erreur": f"Service Gemini indisponible: {str(e)}"}

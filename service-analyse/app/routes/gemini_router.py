@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..services.gemini_service import generer_resume
+from ..services.pipeline_service import analyser_texte_complet
 from ..schemas.gemini_schema import TexteRequest
 
 router = APIRouter()
@@ -18,6 +18,6 @@ def analyser_texte(article: TexteRequest):
     }
     """
     
-    resultat = generer_resume(article.texte, article.categorie)
+    resultat = analyser_texte_complet(article.texte, article.categorie)
     
     return resultat

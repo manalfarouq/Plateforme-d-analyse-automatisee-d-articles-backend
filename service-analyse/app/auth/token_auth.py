@@ -17,3 +17,14 @@ def verify_token(token: str = Header(...)):
         return payload
     except JWTError:
         raise HTTPException(status_code=401, detail="Token invalide ou expiré")
+    
+def get_user_id_from_token(token: str) -> int:
+    """Extrait le user_id du token"""
+    try:
+        payload = jwt.decode(token, settings.SK, algorithms=[settings.ALG])
+        user_id = payload.get("sub")
+        if user_id is None:
+            raise HTTPException(status_code=401, detail="Token invalide")
+        return int(user_id)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Token invalide ou expiré")    
