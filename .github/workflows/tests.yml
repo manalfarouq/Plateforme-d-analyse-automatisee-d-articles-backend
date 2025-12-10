@@ -79,7 +79,16 @@ jobs:
             id SERIAL PRIMARY KEY,
             username VARCHAR(100) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL
+            email VARCHAR(255) UNIQUE NOT NULL,
+            createat TIMESTAMP DEFAULT NOW() NOT NULL
+          );
+          CREATE TABLE IF NOT EXISTS analyse_logs (
+            id SERIAL PRIMARY KEY,
+            user_id INTEGER NOT NULL REFERENCES users(id),
+            texte_original TEXT NOT NULL,
+            categorie VARCHAR(100) NOT NULL,
+            resume TEXT,
+            ton VARCHAR(50)
           );
           "
       
