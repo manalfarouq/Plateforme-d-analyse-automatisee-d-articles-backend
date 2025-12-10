@@ -7,9 +7,18 @@ from .routes import (
     history_router,
     filtrer_analyses_router
 )
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Service d'Analyse d'Articles")
 
+# Configuration CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  
+    allow_credentials=True,
+    allow_methods=["*"],  
+    allow_headers=["*"],  
+)
 
 @app.get("/")
 async def root():
