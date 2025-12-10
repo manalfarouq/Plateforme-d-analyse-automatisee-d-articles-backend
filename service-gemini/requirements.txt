@@ -18,4 +18,5 @@ pytest-mock
 huggingface_hub
 pydantic_settings
 jwt
-email-validator
+google-generativeai
+google-genai

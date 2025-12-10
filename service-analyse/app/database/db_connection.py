@@ -1,24 +1,21 @@
-import psycopg2
-from app.core.config import settings
+# service-analyse/app/database/db_connection.py
 
-"""
-Qu'est-ce que ça fait ?
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from ..core.config import settings
 
-=> Cette fonction crée une connexion entre Python et PostgreSQL
-=> C'est comme ouvrir une porte entre le code et la base de données
-=> Chaque fois que je veux lire/écrire dans la base, j'appelle cette fonction
-"""
+DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
 
-def get_db_connection():
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-    conn = psycopg2.connect(
-        host=settings.DB_HOST,
-        port=settings.DB_PORT,
-        database=settings.DB_NAME,
-        user=settings.DB_USER,
-        password=settings.DB_PASSWORD
-    )
-    return conn
 
-# Utiliser DATABASE_URL si disponible (Render)
-    # database_url = os.getenv("DATABASE_URL")
+def get_db():
+    """
+    Dépendance FastAPI pour obtenir une session SQLAlchemy.
+    """
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
