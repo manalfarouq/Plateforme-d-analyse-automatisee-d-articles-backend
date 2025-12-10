@@ -1,12 +1,6 @@
 from pydantic_settings import BaseSettings
 from pathlib import Path
 
-# Obtenir le chemin absolu du dossier service-auth
-# __file__ = service-auth/app/core/config.py
-# .parent = service-auth/app/core
-# .parent = service-auth/app
-# .parent = service-auth
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 from pydantic_settings import BaseSettings
 

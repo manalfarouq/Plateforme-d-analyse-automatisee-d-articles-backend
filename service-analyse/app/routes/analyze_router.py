@@ -1,13 +1,21 @@
-from fastapi import APIRouter, Header, HTTPException
+# service-analyse/app/routes/analyze_router.py
+
+from fastapi import APIRouter, Header, HTTPException, Depends
+from sqlalchemy.orm import Session
 from ..services.huggingface_service import classifier_articles
-from ..auth.token_auth import verify_token 
-from ..database.db_connection import get_db_connection
+from ..auth.token_auth import verify_token
 from ..schemas.Article_schema import ArticleAnalyzeRequest
+from ..database.db_connection import get_db
 
 router = APIRouter()
 
+
 @router.post("/AnalyzeText")
-def analyze_text_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(...)):
+def analyze_text_endpoint(
+    articles: ArticleAnalyzeRequest,
+    token: str = Header(...),
+    db: Session = Depends(get_db)
+):
     """
     Endpoint pour analyser un article en utilisant le service Hugging Face.
     Args:
@@ -22,7 +30,7 @@ def analyze_text_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(.
         
         # Extraire uniquement la catégorie avec le score le plus élevé
         if isinstance(resultat, list) and len(resultat) > 0:
-            meilleure_categorie = resultat[0]  # Le premier élément a le score le plus élevé
+            meilleure_categorie = resultat[0]
             meilleure_categorie["score"] = f"{meilleure_categorie['score'] * 100:.2f}%"
         else:
             meilleure_categorie = resultat
@@ -30,7 +38,7 @@ def analyze_text_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(.
         return {
             "success": True,
             "original_text": articles.text,
-            "best_category": meilleure_categorie  
+            "best_category": meilleure_categorie
         }
          
     except HTTPException:
@@ -39,6 +47,6 @@ def analyze_text_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(.
     except Exception as e:
         print(f"Erreur analyse: {str(e)}") 
         raise HTTPException(
-            status_code=500, 
-            detail="Erreur lors de l'analyse de l'article"  
+            status_code=500,
+            detail="Erreur lors de l'analyse de l'article"
         )

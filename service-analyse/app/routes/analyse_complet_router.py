@@ -1,17 +1,22 @@
 # service-analyse/app/routes/analyse_complet_router.py
 
-from fastapi import APIRouter, Header, HTTPException
+from fastapi import APIRouter, Header, HTTPException, Depends
+from sqlalchemy.orm import Session
 from ..auth.token_auth import verify_token, get_user_id_from_token
 from ..schemas.Article_schema import ArticleAnalyzeRequest
 from ..services.pipeline_service import analyser_texte_complet
-from ..database.db_connection import get_db_connection
-from ..auth.token_auth import verify_token, get_user_id_from_token
+from ..database.db_connection import get_db
+from ..models.analyse_log import AnalyseLog
 
 router = APIRouter()
 
 
 @router.post("/AnalyzeComplet")
-def analyze_complet_endpoint(articles: ArticleAnalyzeRequest, token: str = Header(...)):
+def analyze_complet_endpoint(
+    articles: ArticleAnalyzeRequest,
+    token: str = Header(...),
+    db: Session = Depends(get_db)
+):
     """
     Pipeline complet HuggingFace + Gemini + Sauvegarde BDD
     """
@@ -27,31 +32,24 @@ def analyze_complet_endpoint(articles: ArticleAnalyzeRequest, token: str = Heade
         if "erreur" in resultat:
             raise HTTPException(status_code=500, detail=resultat["erreur"])
         
-        # SAUVEGARDE EN BASE DE DONNÉES
+        # SAUVEGARDE EN BASE DE DONNÉES avec SQLAlchemy
         try:
-            conn = get_db_connection()
-            cursor = conn.cursor()
+            nouvelle_analyse = AnalyseLog(
+                user_id=user_id,
+                texte_original=articles.text,
+                categorie=resultat["classification"]["categorie"],
+                resume=resultat["resume"],
+                ton=resultat["ton"]
+            )
             
-            cursor.execute("""
-                INSERT INTO analyse_logs (user_id, texte_original, categorie, resume, ton)
-                VALUES (%s, %s, %s, %s, %s)
-                RETURNING id
-            """, (
-                user_id,
-                articles.text,
-                resultat["classification"]["categorie"],
-                resultat["resume"],
-                resultat["ton"]
-            ))
+            db.add(nouvelle_analyse)
+            db.commit()
+            db.refresh(nouvelle_analyse)
             
-            analyse_id = cursor.fetchone()[0]
-            conn.commit()
-            cursor.close()
-            conn.close()
-            
-            print(f"Analyse sauvegardée avec ID: {analyse_id}")
+            print(f"Analyse sauvegardée avec ID: {nouvelle_analyse.id}")
             
         except Exception as e:
+            db.rollback()
             print(f"Erreur sauvegarde BDD: {e}")
             # On continue même si la sauvegarde échoue
         

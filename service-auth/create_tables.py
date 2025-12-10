@@ -1,10 +1,8 @@
-from app.models.user import Base
-from app.models.analyse_log import AnalyseLog 
-from sqlalchemy import create_engine
-from app.core.config import settings
+# service-auth/create_tables.py
 
-DATABASE_URL = f"postgresql://{settings.DB_USER}:{settings.DB_PASSWORD}@{settings.DB_HOST}:{settings.DB_PORT}/{settings.DB_NAME}"
-engine = create_engine(DATABASE_URL)
+from app.models import Base, User, AnalyseLog
+from app.database.db_connection import engine
 
+# Créer toutes les tables
 Base.metadata.create_all(bind=engine)
-print("Tables créées !")
+print("Tables créées avec succès !")
