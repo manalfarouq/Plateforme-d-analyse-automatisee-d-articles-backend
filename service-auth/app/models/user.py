@@ -14,7 +14,7 @@ class User(Base):
     username = Column(String(100), unique=True, nullable=False, index=True)
     password = Column(String(255), nullable=False)
     email = Column(String(255), unique=True, nullable=False, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    createat = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     # Relation avec AnalyseLog (utiliser string pour éviter l'import circulaire)
     analyse_logs = relationship("AnalyseLog", back_populates="user", lazy="dynamic")
