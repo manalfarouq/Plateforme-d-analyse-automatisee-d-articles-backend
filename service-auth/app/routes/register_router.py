@@ -1,64 +1,53 @@
-from fastapi import APIRouter, HTTPException
-from ..schemas.SignupRequest_schema import SignupRequest
-from ..database.db_connection import get_db_connection  
-import bcrypt
-from jose import jwt
-from datetime import datetime, timedelta, timezone
-from ..core.config import settings
+# service-auth/app/routes/register_router.py
 
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
+from ..schemas.SignupRequest_schema import SignupRequest
+from ..database.db_connection import get_db
+from ..models.user import User
+from ..auth.token_auth import create_jwt_token
+import bcrypt
 
 router = APIRouter()
 
 
 @router.post("/Signup")
-def register(signup_request: SignupRequest):
+def register(signup_request: SignupRequest, db: Session = Depends(get_db)):
     """
-    Endpoint pour l'inscription des nouveaux utilisateurs.
-    Vérifie que le username n'existe pas déjà et crée un nouveau compte.
-    Route simple de signup :
-    - Vérifie si le username existe déjà
-    - Hash le mot de passe avec bcrypt
-    - Insère le nouvel utilisateur dans la base
-    - Retourne un message de succès
+    Endpoint pour l'inscription des nouveaux utilisateurs avec SQLAlchemy.
     """
-    
-    # Connexion à la base de données
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
     try:
-        #!  Vérifier si l'utilisateur existe déjà
-        cursor.execute("SELECT username FROM users WHERE username = %s", (signup_request.username,))
-        existing_user = cursor.fetchone()
+        # Vérifier si l'utilisateur existe déjà
+        existing_user = db.query(User).filter(User.username == signup_request.username).first()
         
         if existing_user:
-            raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe déjà.")
+            raise HTTPException(status_code=400, detail="Ce nom d'utilisateur existe déjà")
         
-        #! Hasher le mot de passe avec bcrypt
-        hashed_password = bcrypt.hashpw(signup_request.password.encode('utf-8'), bcrypt.gensalt())
+        # Hasher le mot de passe
+        hashed_password = bcrypt.hashpw(
+            signup_request.password.encode('utf-8'),
+            bcrypt.gensalt()
+        ).decode('utf-8')
         
-        #! Insérer le nouvel utilisateur avec email
-        cursor.execute(
-            "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)",  
-            (signup_request.username, hashed_password.decode('utf-8'), signup_request.email)
+        # Créer un nouvel utilisateur
+        new_user = User(
+            username=signup_request.username,
+            password=hashed_password,
+            email=signup_request.email
         )
         
-        #! Sauvegarder les changements dans la base
-        conn.commit()
+        # Ajouter à la session et sauvegarder
+        db.add(new_user)
+        db.commit()
+        db.refresh(new_user)  # Pour récupérer l'ID généré
         
-        #! Créer un JWT token
-        expire = datetime.now(timezone.utc) + timedelta(hours=24)
-        token = jwt.encode(
-            {"sub": signup_request.username, "email": signup_request.email, "exp": expire},
-            settings.SK,
-            algorithm=settings.ALG
-        )
+        # Créer le token
+        token = create_jwt_token(new_user.id, new_user.username, new_user.email)
         
-        #! Retourner un message de succès avec token
         return {
             "message": "Utilisateur créé avec succès",
-            "username": signup_request.username,
-            "email": signup_request.email,
+            "username": new_user.username,
+            "email": new_user.email,
             "token": token
         }
     
@@ -66,9 +55,6 @@ def register(signup_request: SignupRequest):
         raise
     
     except Exception as e:
-        conn.rollback()
-        raise HTTPException(status_code=500, detail=str(e))
-    
-    finally:
-        cursor.close()
-        conn.close()
+        db.rollback()
+        print(f"Erreur register: {str(e)}")
+        raise HTTPException(status_code=500, detail="Erreur lors de l'inscription")

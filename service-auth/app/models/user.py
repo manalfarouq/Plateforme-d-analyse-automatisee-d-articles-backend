@@ -6,6 +6,7 @@ from datetime import datetime
 
 Base = declarative_base()
 
+
 class User(Base):
     __tablename__ = "users"
     
@@ -15,5 +16,5 @@ class User(Base):
     email = Column(String(255), unique=True, nullable=False, index=True)
     createat = Column(DateTime, default=datetime.utcnow, nullable=False)
     
-    # Relation avec AnalysisLog
-    analysis_logs = relationship("AnalyseLog", back_populates="user")
+    # Relation avec AnalyseLog (utiliser string pour éviter l'import circulaire)
+    analyse_logs = relationship("AnalyseLog", back_populates="user", lazy="dynamic")
