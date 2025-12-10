@@ -1,8 +1,9 @@
-# service-auth/app/models/analysis_log.py
+# service-analyse/app/models/analyse_log.py
 
-from sqlalchemy import Column, Integer, String, Text,  ForeignKey
+from sqlalchemy import Column, Integer, String, Text, ForeignKey
 from sqlalchemy.orm import relationship
-from .user import Base 
+from .user import Base
+
 
 class AnalyseLog(Base):
     __tablename__ = "analyse_logs"
@@ -14,4 +15,5 @@ class AnalyseLog(Base):
     resume = Column(Text, nullable=True)
     ton = Column(String(50), nullable=True)
     
+    # Relation avec User
     user = relationship("User", back_populates="analyse_logs")

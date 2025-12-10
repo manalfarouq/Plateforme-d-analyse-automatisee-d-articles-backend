@@ -1,8 +1,10 @@
-# service-analyse/app/routes/analyze_router.py
+# service-analyse/app/routes/filtrer_analyses_router.py
 
-from fastapi import APIRouter, Query, Header, HTTPException
+from fastapi import APIRouter, Query, Header, HTTPException, Depends
+from sqlalchemy.orm import Session
 from typing import Optional
-from ..database.db_connection import get_db_connection
+from ..database.db_connection import get_db
+from ..models.analyse_log import AnalyseLog
 from ..auth.token_auth import verify_token, get_user_id_from_token
 
 router = APIRouter()
@@ -13,6 +15,7 @@ def filtrer_analyses(
     token: str = Header(...),
     categorie: Optional[str] = Query(None),
     ton: Optional[str] = Query(None),
+    db: Session = Depends(get_db)
 ):
     """
     Afficher l'historique des analyses de l'utilisateur connecté avec filtres optionnels
@@ -22,39 +25,30 @@ def filtrer_analyses(
     verify_token(token)
     user_id = get_user_id_from_token(token)
     
-    # 2. Construire la requête SQL
-    conn = get_db_connection()
-    cursor = conn.cursor()
+    # 2. Construire la requête SQLAlchemy
+    query = db.query(AnalyseLog).filter(AnalyseLog.user_id == user_id)
     
-    query = "SELECT id, user_id, texte_original, categorie, resume, ton FROM analyse_logs WHERE user_id = %s"
-    params = [user_id]
-    
-    # 3. Ajouter les filtres si l'utilisateur les a tapés
+    # 3. Ajouter les filtres si présents
     if categorie:
-        query += " AND categorie = %s"
-        params.append(categorie)
+        query = query.filter(AnalyseLog.categorie == categorie)
     
     if ton:
-        query += " AND ton = %s"
-        params.append(ton)
+        query = query.filter(AnalyseLog.ton == ton)
     
     # 4. Exécuter la requête
-    cursor.execute(query, tuple(params))
-    analyses = cursor.fetchall()
-    
-    cursor.close()
-    conn.close()
+    analyses = query.all()
     
     # 5. Transformer en JSON
-    resultats = []
-    for analyse in analyses:
-        resultats.append({
-            "id": analyse[0],
-            "user_id": analyse[1],
-            "texte_original": analyse[2],
-            "categorie": analyse[3],
-            "resume": analyse[4],
-            "ton": analyse[5],
-        })
+    resultats = [
+        {
+            "id": analyse.id,
+            "user_id": analyse.user_id,
+            "texte_original": analyse.texte_original,
+            "categorie": analyse.categorie,
+            "resume": analyse.resume,
+            "ton": analyse.ton,
+        }
+        for analyse in analyses
+    ]
     
     return resultats
