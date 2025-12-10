@@ -1,7 +1,5 @@
 # Hybrid-Analyzer Platform - Backend
 
-> Plateforme d'analyse automatisée d'articles de presse utilisant l'IA pour la classification et la synthèse contextuelle.
-
 [![Tests](https://github.com/manalfarouq/Plateforme-d-analyse-automatisee-d-articles-backend/workflows/Tests/badge.svg)](https://github.com/manalfarouq/Plateforme-d-analyse-automatisee-d-articles-backend/actions)
 [![Docker](https://github.com/manalfarouq/Plateforme-d-analyse-automatisee-d-articles-backend/workflows/Docker%20Build/badge.svg)](https://github.com/manalfarouq/Plateforme-d-analyse-automatisee-d-articles-backend/actions)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
