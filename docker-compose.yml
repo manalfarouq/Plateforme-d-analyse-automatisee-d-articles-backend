@@ -1,0 +1,76 @@
+version: '3.8'
+
+services:
+  # ========== BASE DE DONNÉES ==========
+  db:
+    image: postgres:15
+    container_name: hybrid_db
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ========== SERVICE AUTH ==========
+  auth:
+    build: ./service-auth
+    container_name: auth_service
+    ports:
+      - "8001:8001"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      SECRET_KEY: ${SK}
+      ALGORITHM: ${ALG}
+      ACCESS_TOKEN_EXPIRE_MINUTES: ${ACCESS_TOKEN_EXPIRE_MINUTES}
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ========== SERVICE ANALYSE ==========
+  analyse:
+    build: ./service-analyse
+    container_name: analyse_service
+    ports:
+      - "8002:8002"
+    environment:
+      AUTH_SERVICE_URL: http://auth:8001
+      HF_TOKEN: ${HF_TOKEN:-test_token}
+      GEMINI_SERVICE_URL: http://gemini:8003
+    depends_on:
+      auth:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ========== SERVICE GEMINI ==========
+  gemini:
+    build: ./service-gemini
+    container_name: gemini_service
+    ports:
+      - "8003:8003"
+    environment:
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  default:
+    name: hybrid-network
+    driver: bridge
